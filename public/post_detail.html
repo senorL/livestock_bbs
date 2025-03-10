@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帖子详情 - 畜牧经验交流平台</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app" class="container">
+        <div class="header">
+            <h1>畜牧经验交流平台</h1>
+        </div>
+        
+        <div class="navbar">
+            <div class="container">
+                <a href="index.html" class="navbar-brand">返回首页</a>
+                <div v-if="user.id">
+                    <span>欢迎, {{ user.username }}</span>
+                    <button @click="logout" class="btn btn-secondary ml-2">退出登录</button>
+                </div>
+                <div v-else>
+                    <a href="index.html" class="btn btn-light">登录/注册</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 帖子详情 -->
+        <div v-if="post" class="post-detail">
+            <div class="post-card">
+                <h2 class="post-title">{{ post.title }}</h2>
+                <div class="post-meta">
+                    <span>作者: {{ post.username }} | 发表于: {{ post.created_at }}</span>
+                    <button v-if="user.id == post.user_id" @click="deletePost" class="btn btn-danger btn-sm">删除帖子</button>
+                </div>
+                <div class="post-content-full">
+                    {{ post.content }}
+                </div>
+            </div>
+            
+            <!-- 评论区 -->
+            <div class="comments-section">
+                <h3>评论区</h3>
+                
+                <!-- 发表评论 -->
+                <div v-if="user.id" class="comment-form">
+                    <textarea v-model="newComment" placeholder="发表您的评论..." class="form-control" rows="3"></textarea>
+                    <button @click="addComment" class="btn btn-primary mt-2">提交评论</button>
+                </div>
+                <div v-else class="alert alert-info">
+                    请<a href="index.html">登录</a>后发表评论
+                </div>
+                
+                <!-- 评论列表 -->
+                <div v-if="comments.length === 0" class="text-center mt-3">
+                    <p>暂无评论，快来发表第一条评论吧！</p>
+                </div>
+                <div v-else class="comments-list">
+                    <div v-for="(comment, index) in comments" :key="comment.id" class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-floor">{{ index + 1 }}楼</span>
+                            <span class="comment-author">{{ comment.username }}</span>
+                            <span class="comment-time">{{ comment.created_at }}</span>
+                        </div>
+                        <div class="comment-content">
+                            {{ comment.content }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 加载中或错误提示 -->
+        <div v-else-if="loading" class="text-center">
+            <div class="spinner"></div>
+            <p>加载中...</p>
+        </div>
+        <div v-else class="alert alert-danger">
+            帖子不存在或已被删除
+        </div>
+    </div>
+    
+    <script src="post_detail.js"></script>
+</body>
+</html>
