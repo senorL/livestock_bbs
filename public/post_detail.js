@@ -26,6 +26,12 @@ new Vue({
                     this.loading = false;
                     document.title = `${this.post.title} - 畜牧经验交流平台`;
                     this.loadComments();
+                    this.loadLikes();
+                    
+                    // 确保作者名字可以链接到用户个人主页
+                    if (this.post && this.post.author_id) {
+                        this.$set(this.post, 'author_profile_url', `user_profile.html?id=${this.post.author_id}`);
+                    }
                 })
                 .catch(error => {
                     console.error('加载帖子失败:', error);
@@ -89,6 +95,55 @@ new Vue({
                     alert('删除失败，请稍后重试');
                 });
         },
+        loadLikes() {
+            // 加载帖子的点赞信息
+            if (!this.postId || !this.post) return;
+            
+            axios.get(`../api/get_likes.php?content_id=${this.postId}&content_type=post&user_id=${this.user.id || 0}`)
+                .then(response => {
+                    if (response.data.status === 'success') {
+                        // 更新帖子的点赞信息
+                        this.$set(this.post, 'likes_count', response.data.likes_count);
+                        this.$set(this.post, 'is_liked', response.data.is_liked);
+                    }
+                })
+                .catch(error => {
+                    console.error('加载点赞信息失败:', error);
+                });
+        },
+        
+        toggleLike() {
+            if (!this.user.id) {
+                alert('请先登录后再点赞');
+                return;
+            }
+            
+            const likeData = {
+                user_id: this.user.id,
+                content_id: this.postId,
+                content_type: 'post'
+            };
+            
+            axios.post('../api/like.php', likeData)
+                .then(response => {
+                    if (response.data.status === 'success') {
+                        // 更新点赞状态
+                        const action = response.data.action;
+                        if (action === 'liked') {
+                            this.post.is_liked = true;
+                            this.post.likes_count = (this.post.likes_count || 0) + 1;
+                        } else if (action === 'unliked') {
+                            this.post.is_liked = false;
+                            this.post.likes_count = Math.max(0, (this.post.likes_count || 0) - 1);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('点赞操作失败:', error);
+                    alert('点赞失败，请稍后重试');
+                });
+        },
+        
         logout() {
             this.user = { id: null, username: '' };
             localStorage.removeItem('user');

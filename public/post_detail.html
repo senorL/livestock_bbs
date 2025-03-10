@@ -32,8 +32,16 @@
             <div class="post-card">
                 <h2 class="post-title">{{ post.title }}</h2>
                 <div class="post-meta">
-                    <span>作者: {{ post.username }} | 发表于: {{ post.created_at }}</span>
+                    <span>作者: <a :href="'profile.html?id=' + post.user_id">{{ post.username }}</a> | 发表于: {{ post.created_at }}</span>
                     <button v-if="user.id == post.user_id" @click="deletePost" class="btn btn-danger btn-sm">删除帖子</button>
+                </div>
+                <div class="post-actions">
+                    <button @click="toggleLike" :class="['btn', 'btn-sm', post.is_liked ? 'btn-primary' : 'btn-outline-primary']" :disabled="!user.id">
+                        <span v-if="post.is_liked">已点赞</span>
+                        <span v-else>点赞</span>
+                        <span class="likes-count">{{ post.likes_count || 0 }}</span>
+                    </button>
+                    <small v-if="!user.id" class="text-muted ml-2">登录后可点赞</small>
                 </div>
                 <div class="post-content-full">
                     {{ post.content }}

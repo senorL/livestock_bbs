@@ -99,7 +99,7 @@
                         <h3 class="post-title">{{ post.title }}</h3>
                         <p class="post-content">{{ post.content.length > 200 ? post.content.substring(0, 200) + '...' : post.content }}</p>
                         <div class="post-meta">
-                            <span>作者: {{ post.username }} | 发表于: {{ post.created_at }}</span>
+                            <span>作者: <a :href="'profile.html?id=' + post.user_id">{{ post.username }}</a> | 发表于: {{ post.created_at }}</span>
                             <a :href="'post_detail.html?id=' + post.id" class="btn btn-sm btn-primary mt-2">查看详情</a>
                         </div>
                     </div>

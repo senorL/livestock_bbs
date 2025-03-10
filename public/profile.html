@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人主页 - 畜牧经验交流平台</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app" class="container">
+        <div class="header">
+            <h1>畜牧经验交流平台</h1>
+        </div>
+        
+        <div class="navbar">
+            <div class="container">
+                <a href="index.html" class="navbar-brand">返回首页</a>
+                <div v-if="currentUser.id">
+                    <span>欢迎, {{ currentUser.username }}</span>
+                    <button @click="logout" class="btn btn-secondary ml-2">退出登录</button>
+                </div>
+                <div v-else>
+                    <a href="index.html" class="btn btn-light">登录/注册</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 加载中 -->
+        <div v-if="loading" class="text-center">
+            <div class="spinner"></div>
+            <p>加载中...</p>
+        </div>
+        
+        <!-- 用户不存在 -->
+        <div v-else-if="!user" class="alert alert-danger">
+            用户不存在或已被删除
+        </div>
+        
+        <!-- 用户个人信息 -->
+        <div v-else class="profile-container">
+            <!-- 个人信息卡片 -->
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <img :src="user.avatar || '../assets/default-avatar.png'" alt="头像">
+                    </div>
+                    <div class="profile-info">
+                        <h2>{{ user.username }}</h2>
+                        <p v-if="user.bio">{{ user.bio }}</p>
+                        <p v-else class="text-muted">这个用户很懒，还没有填写个人简介</p>
+                        
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <span class="stat-value">{{ user.posts_count || 0 }}</span>
+                                <span class="stat-label">帖子</span>
+                            </div>
+                            <div class="stat-item">
+                                <a @click="showFollowers = true" class="stat-link">
+                                    <span class="stat-value">{{ user.followers_count || 0 }}</span>
+                                    <span class="stat-label">粉丝</span>
+                                </a>
+                            </div>
+                            <div class="stat-item">
+                                <a @click="showFollowing = true" class="stat-link">
+                                    <span class="stat-value">{{ user.following_count || 0 }}</span>
+                                    <span class="stat-label">关注</span>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- 关注按钮 (仅当查看他人主页且已登录时显示) -->
+                        <div v-if="currentUser.id && currentUser.id !== user.id" class="follow-actions">
+                            <button @click="toggleFollow" :class="['btn', isFollowing ? 'btn-secondary' : 'btn-primary']">
+                                {{ isFollowing ? '取消关注' : '关注' }}
+                            </button>
+                        </div>
+                        
+                        <!-- 编辑资料按钮 (仅当查看自己主页时显示) -->
+                        <div v-if="currentUser.id && currentUser.id === user.id" class="edit-actions">
+                            <button @click="showEditForm = true" class="btn btn-outline-primary">编辑个人资料</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 详细信息 -->
+                <div class="profile-details">
+                    <div class="detail-item" v-if="user.gender">
+                        <span class="detail-label">性别:</span>
+                        <span class="detail-value">{{ user.gender === 'male' ? '男' : (user.gender === 'female' ? '女' : '保密') }}</span>
+                    </div>
+                    <div class="detail-item" v-if="user.location">
+                        <span class="detail-label">地区:</span>
+                        <span class="detail-value">{{ user.location }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">注册时间:</span>
+                        <span class="detail-value">{{ user.created_at }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 用户发布的帖子 -->
+            <div class="user-posts">
+                <h3>{{ user.username }} 发布的帖子</h3>
+                <div v-if="userPosts.length === 0" class="text-center">
+                    <p>暂无帖子</p>
+                </div>
+                <div v-else>
+                    <div v-for="post in userPosts" :key="post.id" class="post-card">
+                        <h3 class="post-title">{{ post.title }}</h3>
+                        <p class="post-content">{{ post.content.length > 200 ? post.content.substring(0, 200) + '...' : post.content }}</p>
+                        <div class="post-meta">
+                            <span>发表于: {{ post.created_at }}</span>
+                            <a :href="'post_detail.html?id=' + post.id" class="btn btn-sm btn-primary mt-2">查看详情</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 编辑个人资料表单 (弹窗) -->
+            <div v-if="showEditForm" class="modal-overlay">
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <h3>编辑个人资料</h3>
+                        <button @click="showEditForm = false" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="edit-bio">个人简介</label>
+                            <textarea id="edit-bio" v-model="editForm.bio" class="form-control" rows="3" placeholder="介绍一下自己吧"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-gender">性别</label>
+                            <select id="edit-gender" v-model="editForm.gender" class="form-control">
+                                <option value="">保密</option>
+                                <option value="male">男</option>
+                                <option value="female">女</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-location">地区</label>
+                            <input type="text" id="edit-location" v-model="editForm.location" class="form-control" placeholder="您所在的地区">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-avatar">头像URL</label>
+                            <input type="text" id="edit-avatar" v-model="editForm.avatar" class="form-control" placeholder="头像图片链接">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button @click="updateProfile" class="btn btn-primary">保存</button>
+                        <button @click="showEditForm = false" class="btn btn-secondary">取消</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 粉丝列表 (弹窗) -->
+            <div v-if="showFollowers" class="modal-overlay">
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <h3>粉丝列表</h3>
+                        <button @click="showFollowers = false" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div v-if="followers.length === 0" class="text-center">
+                            <p>暂无粉丝</p>
+                        </div>
+                        <div v-else class="user-list">
+                            <div v-for="follower in followers" :key="follower.id" class="user-item">
+                                <div class="user-avatar">
+                                    <img :src="follower.avatar || '../assets/default-avatar.png'" alt="头像">
+                                </div>
+                                <div class="user-info">
+                                    <a :href="'profile.html?id=' + follower.id" class="user-name">{{ follower.username }}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 关注列表 (弹窗) -->
+            <div v-if="showFollowing" class="modal-overlay">
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <h3>关注列表</h3>
+                        <button @click="showFollowing = false" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div v-if="following.length === 0" class="text-center">
+                            <p>暂无关注</p>
+                        </div>
+                        <div v-else class="user-list">
+                            <div v-for="follow in following" :key="follow.id" class="user-item">
+                                <div class="user-avatar">
+                                    <img :src="follow.avatar || '../assets/default-avatar.png'" alt="头像">
+                                </div>
+                                <div class="user-info">
+                                    <a :href="'profile.html?id=' + follow.id" class="user-name">{{ follow.username }}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="profile.js"></script>
+</body>
+</html>
