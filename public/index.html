@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>畜牧经验交流平台</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>畜牧经验交流平台</h1>
+        <div v-if="!user.id">
+            <button @click="login">登录</button>
+            <button @click="register">注册</button>
+        </div>
+        <div v-else>
+            <h2>欢迎, {{ user.username }}</h2>
+            <div>
+                <input v-model="newPost.title" placeholder="标题">
+                <textarea v-model="newPost.content" placeholder="内容"></textarea>
+                <button @click="createPost">发帖</button>
+            </div>
+            <div v-for="post in posts" :key="post.id">
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.content }}</p>
+                <small>作者: {{ post.username }} | 发表于: {{ post.created_at }}</small>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
