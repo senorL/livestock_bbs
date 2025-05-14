@@ -2,7 +2,7 @@
 $host = 'localhost';
 $db = 'livestock_forum';
 $user = 'root';
-$pass = ''; // XAMPP默认密码为空
+$pass = 'root'; // XAMPP默认密码为空
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {

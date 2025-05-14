@@ -3,7 +3,7 @@ new Vue({
     data: {
         posts: [],
         newPost: { title: '', content: '' },
-        user: { id: null, username: '' },
+        user: { id: null, username: '', is_admin: 0 },
         showLoginForm: true,
         errorMessage: '',
         loginForm: {
@@ -14,6 +14,10 @@ new Vue({
             username: '',
             email: '',
             password: ''
+        },
+        announcement: {
+            text: '',
+            tempText: ''
         }
     },
     methods: {
@@ -38,7 +42,8 @@ new Vue({
                     if (response.data.status === 'success') {
                         this.user = {
                             id: response.data.user_id,
-                            username: this.loginForm.username
+                            username: this.loginForm.username,
+                            is_admin: response.data.is_admin || 0
                         };
                         this.errorMessage = '';
                         this.loginForm = { username: '', password: '' };
@@ -97,7 +102,7 @@ new Vue({
         createPost() {
             const postData = { ...this.newPost, user_id: this.user.id };
             console.log('发送的数据:', postData);
-            axios.post('/livestock_forum/api/post.php', postData)
+            axios.post('../api/post.php', postData)
                 .then(response => {
                     console.log('响应:', response);
                     if (response.data.status === 'success') {
@@ -115,6 +120,32 @@ new Vue({
                 .then(response => {
                     this.posts = response.data;
                 });
+        },
+        // 获取公告内容
+        fetchAnnouncement() {
+            axios.get('../api/get_announcement.php')
+                .then(res => {
+                    this.announcement.text = res.data.text || '';
+                })
+                .catch(err => console.error('获取公告失败:', err));
+        },
+        // 保存公告（管理员权限）
+        saveAnnouncement() {
+            if (!this.user.is_admin) return;
+            axios.post('../api/update_announcement.php', {
+                text: this.announcement.text,
+                user_id: this.user.id
+            })
+            .then(res => {
+                if (res.data.status === 'success') {
+                    alert('公告保存成功');
+                }
+            })
+            .catch(err => console.error('保存公告失败:', err));
+        },
+        // 取消编辑
+        cancelEdit() {
+            this.announcement.text = this.announcement.tempText;
         }
     },
     mounted() {
@@ -129,5 +160,6 @@ new Vue({
             }
         }
         this.loadPosts();
+        this.fetchAnnouncement(); // 初始化加载公告
     }
 });
