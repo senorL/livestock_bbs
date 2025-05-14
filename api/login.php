@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
-            echo json_encode(['status' => 'success', 'user_id' => $user['id']]);
+            echo json_encode(['status' => 'success', 'user_id' => $user['id'], 'is_admin' => $user['is_admin']]);
         } else {
             echo json_encode(['status' => 'error', 'message' => '密码错误，请重试']);
         }

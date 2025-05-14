@@ -10,6 +10,19 @@
 </head>
 <body>
     <div id="app" class="container">
+        <!-- 顶部公告栏 -->
+        <div class="announcement-container">
+            <div class="announcement-content" :class="{ 'editable': user.is_admin }">
+                <div v-if="user.is_admin" class="announcement-edit">
+                    <textarea v-model="announcement.text" class="announcement-input" placeholder="输入公告内容"></textarea>
+                    <button @click="saveAnnouncement" class="btn btn-success btn-sm">保存公告</button>
+                    <button @click="cancelEdit" class="btn btn-secondary btn-sm ml-2">取消</button>
+                </div>
+                <div v-else>
+                    {{ announcement.text || '欢迎访问畜牧经验交流平台！点击右上角登录参与讨论' }}
+                </div>
+            </div>
+        </div>
         <div class="header">
             <h1>畜牧经验交流平台</h1>
         </div>
