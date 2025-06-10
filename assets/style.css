@@ -1106,3 +1106,52 @@ select {
     padding: 0.5rem 1rem;
   }
 }
+
+/* 广告关闭按钮样式 */
+/* 更加隐蔽极小的广告关闭按钮样式 */
+.ad-close-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 12px;
+    height: 12px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #bbb;
+    font-size: 10px;
+    line-height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1001;
+    opacity: 0.18;
+    transition: opacity 0.2s, color 0.2s;
+    box-shadow: none;
+}
+.ad-close-btn:hover {
+    opacity: 0.7;
+    color: #e74c3c;
+    background: #fff;
+}
+.ad-left, .ad-right {
+    position: fixed;
+    top: 80px;
+    width: 160px;
+    height: 600px;
+    z-index: 999;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+.ad-left { left: 0; }
+.ad-right { right: 0; }
+.ad-left img, .ad-right img {
+    width: 160px;
+    height: 600px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+@media (max-width: 1200px) {
+    .ad-left, .ad-right { display: none; }
+}
