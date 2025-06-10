@@ -43,9 +43,6 @@
             <!-- 个人信息卡片 -->
             <div class="profile-card">
                 <div class="profile-header">
-                    <div class="profile-avatar">
-                        <img :src="user.avatar || '../assets/default-avatar.png'" alt="头像">
-                    </div>
                     <div class="profile-info">
                         <h2>{{ user.username }}</h2>
                         <p v-if="user.bio">{{ user.bio }}</p>
@@ -143,10 +140,6 @@
                             <label for="edit-location">地区</label>
                             <input type="text" id="edit-location" v-model="editForm.location" class="form-control" placeholder="您所在的地区">
                         </div>
-                        <div class="form-group">
-                            <label for="edit-avatar">头像URL</label>
-                            <input type="text" id="edit-avatar" v-model="editForm.avatar" class="form-control" placeholder="头像图片链接">
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button @click="updateProfile" class="btn btn-primary">保存</button>
@@ -168,9 +161,6 @@
                         </div>
                         <div v-else class="user-list">
                             <div v-for="follower in followers" :key="follower.id" class="user-item">
-                                <div class="user-avatar">
-                                    <img :src="follower.avatar || '../assets/default-avatar.png'" alt="头像">
-                                </div>
                                 <div class="user-info">
                                     <a :href="'profile.html?id=' + follower.id" class="user-name">{{ follower.username }}</a>
                                 </div>
@@ -193,9 +183,6 @@
                         </div>
                         <div v-else class="user-list">
                             <div v-for="follow in following" :key="follow.id" class="user-item">
-                                <div class="user-avatar">
-                                    <img :src="follow.avatar || '../assets/default-avatar.png'" alt="头像">
-                                </div>
                                 <div class="user-info">
                                     <a :href="'profile.html?id=' + follow.id" class="user-name">{{ follow.username }}</a>
                                 </div>

@@ -15,7 +15,6 @@ new Vue({
             bio: '',
             gender: '',
             location: '',
-            avatar: ''
         }
     },
     methods: {
@@ -51,7 +50,6 @@ new Vue({
                             bio: this.user.bio || '',
                             gender: this.user.gender || '',
                             location: this.user.location || '',
-                            avatar: this.user.avatar || ''
                         };
                         
                         // 加载用户发布的帖子
@@ -145,7 +143,6 @@ new Vue({
                             bio: this.editForm.bio,
                             gender: this.editForm.gender,
                             location: this.editForm.location,
-                            avatar: this.editForm.avatar
                         };
                         
                         this.showEditForm = false;
