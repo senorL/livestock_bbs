@@ -1,9 +1,13 @@
 <?php
 include 'db.php';
 
+// 处理更新请求
+$rawData = file_get_contents('php://input');
+$data = json_decode($rawData, true);
+
+$userId = intval($data['user_id'] ?? 0);
+
 // 验证管理员权限
-session_start();
-$userId = $_SESSION['user_id'] ?? 0;
 $checkAdmin = $conn->prepare("SELECT is_admin FROM users WHERE id = ?");
 $checkAdmin->bind_param("i", $userId);
 $checkAdmin->execute();
