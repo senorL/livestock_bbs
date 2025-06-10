@@ -83,7 +83,7 @@
                 <div class="container">
                     <span class="navbar-brand">畜牧经验交流平台</span>
                     <div>
-                        <span>欢迎, {{ user.username }}</span>
+                        <a :href="'profile.html?id=' + user.id">欢迎, {{ user.username }}</a>
                         <button @click="logout" class="btn btn-secondary ml-2">退出登录</button>
                     </div>
                 </div>
